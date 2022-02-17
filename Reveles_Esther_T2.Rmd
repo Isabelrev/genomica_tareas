@@ -1,0 +1,434 @@
+---
+title: "trea2"
+author: "Esther Reveles"
+date: "17/2/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Tarea 2
+
+## Genómica Funcional 2022
+
+Elabora un documento de RMarkdown con tus respuestas. Envía y/o sube a una liga de github tu respuesta debes incluir al menos el archivo con extensión Rmd y opcionalmente el archivo html. Los comentarios a los problemas, códigos y sobre todo, discusión de tus resultados deben ir como texto de RMarkdown
+
+1.  **(15) Considera las siguientes cantidades discute y justifica qué tipo de distribución de probabilidad pueden tener las siguientes variables:**
+
+**a. El número (talla) de calzado de adultos varones en México**
+
+Distribución unimodal porque la mayoría de los hombres se van a agrupar al rededor del promedio, y no van a encontrarse outlyers o personas que calcen 2 o 3 veces la talla de otra persona.
+
+**b. La distribución de habitantes en asentamientos humanos de México**
+
+Distribución de cola larga porque va a haber un número mayor de habitantes concentrados en las "grandes ciudades"; es decir, aquellas que tengan más trabajos, "mejor economía", etc. Mientras que va haber lugares con una concentración de habitantes mucho menor, pueblos donde a penas haya familias asentadas.
+
+**c. La velocidad promedio de los automóviles en Bernardo Quintana a las 9 de la** **mañana en un día laborable**
+
+Distribución unimodal porque suele haber mucho tráfico, así que durante un tramo considerable los autos tienen que ir a aproximadamente la misma velocidad, y bastante constante.
+
+**d. La velocidad promedio de los automóviles en Bernardo Quintana a las 3 de la** **mañana**
+
+Distribución unimodal porque aunque haya pocos coches y precisamente por eso, van a transitar la mayoría a una misma velocidad pero sí vamos a tener outlyers que son aquellos que van a exceso de velocidad.
+
+2.  **(5) Supongamos que tenemos dos nodos (A,B) en una red. El nodo A y B tiene el** **mismo degree, pero el A tiene un coeficiente de clusterización de 1 y el nodo B un** **coeficiente bajo. Dibuja esta situación y explica cuál sería una mejor diana si quieres** **eliminarlos y afectar a la red.**
+
+```{r}
+library(igraph) #cargamos la librería igraph
+rt2 <- make_empty_graph ( n=7, directed=F )
+#creamos la red con 7 nodos (n) con la función : make_empty_graph ()
+#Se especifica el numero de nodos y si es dirigida o no (en este caso NO porque 
+#no importa la dirección, es NO DIRIGIDA)
+#Se guarda en un objeto
+
+rt2 <- add.edges(rt2, c( 1,2, 1,3, 2,3, 2,4, 4,5, 4,6, 5,7 ))
+V(rt2)$name <- c("C", "A", "D", "B", "E", "F", "G")
+plot(rt2)
+
+#con este código se pueden modificar otras características de la red como el tamaño
+#del vértice, el tamaño de la flecha, su ancho y su color, el color del vértice y el color del
+#nombre que llevan los vértices y el tamaño de la letra o número.
+plot(rt2, vertex.size = 25, edge.arrow.size = 0.25, 
+     edge.arrow.width = 2.5, edge.color = "gray", 
+     vertex.color = "blue", vertex.label.color ="white", 
+     vertex.label.cex = 0.9)
+
+
+# le agregamos conexiones / edges con la funcion : add.edges ()
+# el argmento es el grafico con los nodos creados 
+#para agregar las conexiones usamos un vector numerico
+#donde se pone especifica el orden de las conexiones
+
+cc2 <-transitivity(rt2, type = "local") #para calcular el coeficiente de clusterización
+cc2
+degree(rt2) #calculamos el degree
+
+
+
+#para tener una noción de qué manera se ve afectada la red al quitarle 
+#los nodos, calculamos la distancia y el diámetro de la red cuando se le quita uno u otro
+
+#quitamos el nodo A
+rt2.1 <- delete.vertices(rt2, c(2)) #con esta función quitamos el nodo, sólo vasta con poner
+#como primer argumento el objeto de la red original seguido del nodo que se va a eliminar.
+
+plot(rt2.1)#vemos la red
+diameter(rt2.1)#para calcular el diámetro sólo ponemos como argumento a la red
+distances(rt2.1)#la función distances calcula la matriz de distancias
+
+#quitamos el nodo B
+rt2.2 <- delete.vertices(rt2, c(4))
+plot(rt2.2)
+diameter(rt2.2)
+distances(rt2.2)
+
+```
+
+3.  **(40) Elabora un programa en R que calcule, a partir de una matriz de adyacencia (Sólo utiliza R base para resolver este problema):**
+
+a\. Si la red es dirigida o no.
+
+```{r}
+#Primero creamos una red para obtener la matriz de adyacencia 
+
+
+#rt3 <- random.graph.game(n=6, 0.60) #usamos la función random.graph.game para generar una red completamente aleatoria. Especificamos el número de nodos (n) y el porcentaje de conectividad (en este caso de 75%)
+
+#mad<-get.adjacency(rt3, sparse = F) #con la funcición get.adjacency () vamos a generar la matriz de adyacencia poniendo como primer argumento la red y con el argumento sparse=F le decimos que 
+
+#mad
+
+#hacer una matriz
+rn1<- c(0,1,1,0,0,0)
+rn2<- c(1,0,1,1,1,0)
+rn3<- c(1,1,0,1,0,0)
+rn4<- c(0,1,1,0,1,0)
+rn5<- c(0,1,0,1,0,1)
+rn6<- c(0,0,0,0,1,0)
+
+mad<- matrix(nrow = 6, ncol=6)
+mad[1,]<-rn1
+mad[2,]<-rn2
+mad[3,]<-rn3
+mad[4,]<-rn4
+mad[5,]<-rn5
+mad[6,]<-rn6
+
+mad
+
+
+#una red dirigida arroja una matriz asimétrica 
+#una red no dirigida arroja una matriz simétrica 
+
+
+#usé la transpuesta porque esta es cuando los elementos del renglón i y la columna j son idénticos a los elementos del renglón j y la columna i por lo que si matriz es simétrica, los elemetos de los renglones y las columnas de la transpuesta van a ser iguales en las columnas y renglones de la matriz original. Entonces si y sólo si la matriz es simétrica esto va a ser cierto.
+
+t(mad) #matriz transpuesta función t(x) donde x es la matriz (en este caso la matriz de adyencia)
+
+all(t(mad)==mad) #comparamos si todos los objetos de la matriz transpuesta son iguales a la matriz original 
+#arroja un valor booleano T o F dependiendo de la condición anterior
+#en este caso es T lo que quiere decir que es una matriz no dirigida
+
+
+```
+
+b\. Si la red es pesada o no
+
+```{r}
+
+#usamos un ifelse para determinar si es pesada o no, esto a través de un any
+#el cual no dice si hay algún elemento en la matriz que sea diferente a 0 y 1, dado que no hay elementos diferentes de estos, lo cual indicaría que es una matriz pesada, nos arroja la leyenda "No es una matriz pesada"
+ifelse (any(mad!=0 & mad!=1), paste ("Sí es una matriz pesada"), paste("No es una matriz pesada"))
+
+```
+
+c\. El degree de los nodos y\
+d. el histograma del degree
+
+```{r}
+
+x <- 0
+a <- c()
+
+
+#1 es donde va a iniciar el ciclo, los dos puntos representan el número de veces que se va a repetir el ciclo lo que es igual al tamaño del renglón
+for (x in 1:length(mad[x,])) {
+  a<-sum(mad[x, ])
+  print(a)
+}
+
+#intenté hacer que se guardara el degree en el vector, de modo que se llenara de acuerdo al degree de cada nodo (el degree está dado por la cantidad de unos/1 <conexiones> que tiene cada nodo <cada renglón> ) pero no me salió xc
+
+
+#equivale a hacer esto "a mano" :(
+
+
+#la matriz, el renglón 
+deg<- function(argumento1, argumento2){
+  dgf<-argumento1[argumento2,]
+  sum(dgf)
+}
+
+deg(mad, 1) #con el objeto matriz y el nodo del que quiero que me calcule el degree
+
+
+#lo comprobé "a mano" e hice el histograma a partir de esto:
+m1<-mad[1,]
+mm1<-sum(m1)
+
+m2<-mad[2,]
+mm2<- sum(m2)
+
+m3<-mad[3,]
+mm3<- sum(m3)
+
+m4<-mad[4,]
+mm4<-sum(m4)
+
+m5<-mad[5,]
+mm5<- sum(m5)
+
+m6<-mad[6,]
+mm6<-sum(m6)
+
+dgm <-c(mm1,mm2,mm3,mm4,mm5,mm6) #Todo esto y lo anterior se puede poner en una función 
+hist(dgm)
+
+
+
+
+```
+
+4.  **(40) A partir de la red de interacción de proteínas alojada en la librería igraphdata, que puedes llamar mediante data(yeast) elabora un programa en R (acá sí puedes usar librerías especializadas de R) que:**
+
+a\. Calcule la distribución de conectividades y grafique esa distribución . Discute tu resultado.
+
+```{r}
+#cargamos las librerías 
+library(igraph)
+library(igraphdata)
+data(yeast)
+
+yeast
+
+degree.distribution(yeast) #calculamos la distribución de conectividades con la función degree.distri
+dy<-degree(yeast)
+
+hist(degree.distribution (yeast))
+hist(dy) #podemos ver cómo se distribuyen los nodos de acuerdo a la cantidad de conexiones que tienen
+```
+
+Podemos ver que esta red es una red de distribución de cola larga o sin escala, donde la mayor cantidad de nodos se encuentran poco conectados (los valores de la distribución de los nodos va de 0 a 0.05), mientras que aquellos con mayor conectividad (0.25 hasta 0.30) son muy poquitos y son los que forman parte de la cola de la distribución.
+
+b\. Grafique el boxplot de la distribución de conectividades y discute tu resultado.
+
+```{r}
+
+boxplot(degree.distribution(yeast)) #usando la función boxplot()
+```
+
+Los outlyers más alejados corresponen a los datos que veíamos en el histograma, tenían muchas conexiones, mientras que la parte gruesa del boxplot corresponde a la mayoría de los nodos que se encuentran poco conectados (aproximadamente 2000 nodos).
+
+c\. Encuentre la proporción de nodos que tienen 15 o más conectividades.
+
+```{r}
+
+#usamos la función degree anidada en la función sort de modo que nos dice que calcule el degree de la base de datos yeast y los ordene (sort) de forma decreciente (de mayor a menor) y finalmente qu seleccione las primeras 15; es decir, las 15 proteínas que tengan más conexiones.
+
+mdeg <- sort(degree(yeast), decreasing = T)[1:15]
+mdeg #nos arroja el vector con las 15 proteínas con mayor degree y su respectivo degree
+
+#si sólo quisiéramos saber el nombre anidamos toda la línea anterior en la función names
+
+mndeg <- names(sort(degree(yeast), decreasing = T)[1:15])
+mndeg
+```
+
+d\. Calcule el degree máximo de la red.
+
+```{r}
+
+# espero sí haber entendido bien, pero según yo se refiere a las máximas conexiones que puede tener toda la red
+
+
+head(yeast)
+
+cc<-get.adjacency(yeast, sparse = F) #para poder calcular el número de nodos de la matriz la convertimos a una matriz de adyacencia con ceros y unos. 
+
+N<-dim(cc) #calculamos el número de nodos de la matriz con la función dim() 
+#(bueno, en realidad da el número de renglones y columnas GG)
+
+L<- N*(N-1)/2 #fórmula para calcular el número de conexiones máxima que puede tener una red. 
+#N es el total de nodos que tiene la red
+L
+
+#Hice una función que hace exactamente lo mismo que lo que hice arriba
+#el argumento 1 es la red (en este caso yeast)
+maxdegree<-function(argumento1){
+  cc<-get.adjacency(argumento1, sparse = F)
+  N<-dim(cc) 
+  N*(N-1)/2
+  }
+maxdegree(yeast) #nos arroja el mismo resultado que el objeto L
+
+
+```
+
+e\. Calcule el diámetro
+
+```{r}
+diameter(yeast) #la función diameter, tal cual, nos arroja el diámetro. El argumento para la función es la red (en este caso yeast)
+
+```
+
+f\. La trayectoria más larga.
+
+Bueno, para esto busqué y encontré estas dos referencias y prácticamente dicen que no hay una función que lo calcule, pero se sugiere un código que es lento para correrlo con redes grandes, por lo que ni siquiera lo voy a correr porque presiento que si lo corro la lap va a colapsar o no me va a dejar avanzar en lo demás.
+
+<https://stackoverflow.com/questions/26930022/longest-path-of-weighted-dag-using-r-igraph>
+
+<https://lists.gnu.org/archive/html/igraph-help/2011-07/msg00046.html>
+
+```{r}
+
+# g is the igraph DAG
+# g <- graph.tree(10000, 2, mode="out")
+# E(g)$weight <- round(runif(length(E(g))),2) * 50 
+# Topological sort
+#tsg <- topological.sort(g)    
+# Set root path attributes
+# Root distance
+#V(g)[tsg[1]]$rdist <- 0
+# Path to root
+#V(g)[tsg[1]]$rpath <- tsg[1]
+# Get longest path from root to every node        
+#for(node in tsg[-1])
+#{
+  # Get distance from node's predecessors
+  #w <- E(g)[to(node)]$weight
+  # Get distance from root to node's predecessors
+  #d <- V(g)[nei(node,mode="in")]$rdist
+  # Add distances (assuming one-one corr.)
+  #wd <- w+d
+  # Set node's distance from root to max of added distances 
+  #mwd <- max(wd)
+  #V(g)[node]$rdist <- mwd
+  # Set node's path from root to path of max of added distances
+  #mwdn <- as.vector(V(g)[nei(node,mode="in")])[match(mwd,wd)]
+  #V(g)[node]$rpath <- list(c(unlist(V(g)[mwdn]$rpath), node))      
+#}
+# Longest path length is the largest distance from root
+#lpl <- max(V(g)$rdist)    
+```
+
+g\. Elimine los 10 nodos más conectados de la red y determine el diámetro cada vez que lo haga.
+
+```{r}
+
+mndeg <- names(sort(degree(yeast), decreasing = T)[1:10])
+mndeg
+#[1] "YPR110C" "YPL131W" "YNL178W" "YIL021W" "YOL127W" "YJL063C" "YBR283C" "YLR378C" "YMR260C"
+#[10] "YBR251W" "YGL123W" "YNL284C" "YGL103W" "YOL040C" "YGR034W"
+
+diameter(yeast) #diametro de 15 de la red original
+
+#primero intentpe hacer una función pero pues no funcionó 
+#argumento1:la red
+#argumento2:el vertice a quitar
+di<-function(argumento1, argumento2){
+kk<- delete_vertices(argumento1, c(argumento2))
+diameter(kk)
+md <- sort(degree(kk), decreasing = T)[1:10]
+md
+print(paste("el diámetro es:", diameter(kk)))
+print(md)
+}
+
+di(yeast, "YPR110C")
+
+#luego de complicarme la existencia hice el for
+levadura<-yeast
+nueva<-c()
+for(i in 1:length(mdeg)){
+  nueva[i]<-diameter(levadura)
+  levadura<-delete_vertices(levadura,mdeg[i])
+}
+nueva
+```
+
+h\. Determine los diez nodos más importantes por al menos tres medidas de centralidad.
+
+```{r}
+
+data(yeast)
+
+ex<- sort(eccentricity(yeast), decreasing = T)[1:10]
+ex#por exentricidad
+
+dc<- sort(degree(yeast), decreasing = T)[1:10]
+dc #por degree centrality
+
+bet<- sort(betweenness(yeast), decreasing = T)[1:10]
+bet
+
+closeness(yeast) #por closness centrality 
+
+
+```
+
+i\. Clusterizar la red por al menos dos métodos y determinar el tamaño del clúster más grande.
+
+```{r}
+clus1 <- edge.betweenness.community(yeast)
+clus2 <- label.propagation.community(yeast)
+
+#cl1<- table(membership(clus1))
+
+#length(cl1)
+
+#cl2<- table(membership(clus2))
+
+#length(cl2)
+#también debe correr lo anterior, pero omito eso para que cargue más rápido
+```
+
+j\. Determine si la red es de mundo pequeño, ultra pequeño u otra.
+
+```{r}
+
+#Para la comparación encontré lo siguiente:
+
+#Generamos una red aleatoria bajo el modelo erdos.reny que es el modelo nulo para estos casos
+
+#Calcular la longitud media del camino más corto L y el coeficiente de agrupamiento C de su red y a su vez calculamos la longitud media del camino más corto Lr y el coeficiente de agrupamiento Cr del modelo nulo 
+
+
+er <- erdos.renyi.game(1000, 1/1000)
+
+#spy<- all_shortest_paths(yeast, 1)
+
+py<- mean_distance(yeast)
+py
+#py<- mean(spy)
+ty<- transitivity(yeast, type = "global")
+ty
+#spe <- all_shortest_paths(er, 1)
+spe <- mean_distance(er)
+spe
+#pe<- mean(spe)
+ter<- transitivity(er, type = "global")
+ter
+
+#Calcule el camino más corto normalizado λ:=L/Lr. y γ:=C/Cr.
+la<- py/pe
+la1<- ty/ter
+la
+la1
+
+#Si λ y γ cumplen ciertos criterios (p. ej., λ≈1 y γ>1), llame a la red red de mundo pequeño.
+
+```
+
+Al final, al tener el modelo nulo traté de comparar el promedio de las distancias porque las redes de mundo pequeño tienen distancias muy pequeñas aún cuando no están completamente conectadas. El promedio de las distancias es similar, aunque supongo que debe haber una prueba estadística para saber si el parecido es significativo, pero no son demasiado diferentes los promedios. La del modelo nulo es 5.65349 y la de la levadura es 5.095629, por lo que yo podría decir que sí es una red de mundo pequeño.
